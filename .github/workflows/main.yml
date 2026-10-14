@@ -14,8 +14,17 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: 8.10.2
-      - run: gradle build
+      - name: Build
+        run: |
+          settings=$(find . -maxdepth 3 \( -name settings.gradle -o -name settings.gradle.kts \) | head -1)
+          if [ -z "$settings" ]; then
+            echo "No settings.gradle found"
+            ls -R | head -50
+            exit 1
+          fi
+          cd "$(dirname "$settings")"
+          gradle build
       - uses: actions/upload-artifact@v4
         with:
           name: mod-jar
-          path: build/libs/*.jar
+          path: "**/build/libs/*.jar"
